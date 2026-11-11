@@ -1,0 +1,26 @@
+{
+  "id": "/",
+  "name": "WiFi Connect Pro & Enterprise Network Analyzer",
+  "short_name": "WiFiAnalyzer",
+  "description": "Suite profesional de diagnóstico, auditoría de red, telemetría W3C y test de velocidad sin datos simulados.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#070b13",
+  "theme_color": "#06b6d4",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='100' fill='%23070b13'/%3E%3Cpath d='M120 220c75-70 197-70 272 0M165 265c50-45 132-45 182 0M212 310c25-22 63-22 88 0M256 365a20 20 0 1 0 0 .1' stroke='%2306b6d4' stroke-width='28' stroke-linecap='round' fill='none'/%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='100' fill='%23070b13'/%3E%3Cpath d='M120 220c75-70 197-70 272 0M165 265c50-45 132-45 182 0M212 310c25-22 63-22 88 0M256 365a20 20 0 1 0 0 .1' stroke='%2306b6d4' stroke-width='28' stroke-linecap='round' fill='none'/%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
