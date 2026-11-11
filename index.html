@@ -4480,35 +4480,33 @@
           }
         } else {
           // -------------------------------------------------------------
-          // MODO WEB BROWSER / PWA (SANDBOX SEGURO + DETECCIÓN DE GATEWAYS)
+          // MODO WEB BROWSER / PWA (SANDBOX DE SEGURIDAD W3C)
           // -------------------------------------------------------------
-          this.updateScanTicker('[WEB-SANDBOX] Analizando puertas de enlace locales y puntos de acceso...');
+          this.updateScanTicker('[WEB-SANDBOX] Los navegadores no poseen acceso directo al chip RF por aislamiento W3C.');
 
-          const localCandidates = [
-            { ssid: 'Gateway Router Predeterminado', ip: '192.168.1.1', security: 'OPEN', rssi: -48, channel: 6, band: '2.4GHz', isOpen: true },
-            { ssid: 'Hotspot Abierto Local', ip: '192.168.0.1', security: 'OPEN', rssi: -56, channel: 11, band: '2.4GHz', isOpen: true },
-            { ssid: 'Red Libre Corporativa / Invitados', ip: '10.0.0.1', security: 'OPEN', rssi: -62, channel: 36, band: '5GHz', isOpen: true },
-            { ssid: 'Hotspot_Emergencia (Bóveda)', ip: '192.168.43.1', security: 'WPA2', rssi: -42, channel: 1, band: '2.4GHz', isOpen: false },
-            { ssid: 'Oficina_Respaldo_5G (Bóveda)', ip: '192.168.88.1', security: 'WPA3', rssi: -51, channel: 44, band: '5GHz', isOpen: false }
-          ];
+          // Únicamente redes guardadas explícitamente por el usuario en su Bóveda Local
+          const vaultSaved = (STATE.autoRecovery.emergencyKeyVault || []).map(v => ({
+            ssid: v.ssid,
+            security: 'WPA2/WPA3',
+            rssi: null,
+            channel: null,
+            band: '2.4GHz / 5GHz',
+            isVault: true
+          }));
 
-          const openCandidates = localCandidates.filter(c => c.isOpen);
-          const privateCandidates = localCandidates.filter(c => !c.isOpen);
+          STATE.autoRecovery.discoveredNetworks = vaultSaved;
+          STATE.autoRecovery.discoveredOpenNetworks = [];
+          STATE.autoRecovery.discoveredPrivateNetworks = vaultSaved;
+          STATE.autoRecovery.bestOpenNetwork = null;
+          STATE.autoRecovery.bestPrivateNetwork = vaultSaved.length > 0 ? vaultSaved[0] : null;
 
-          STATE.autoRecovery.discoveredNetworks = localCandidates;
-          STATE.autoRecovery.discoveredOpenNetworks = openCandidates;
-          STATE.autoRecovery.discoveredPrivateNetworks = privateCandidates;
-          STATE.autoRecovery.bestOpenNetwork = openCandidates[0];
-          STATE.autoRecovery.bestPrivateNetwork = privateCandidates[0];
+          this.renderDiscoveredNetworks([], vaultSaved);
 
-          this.renderDiscoveredNetworks(openCandidates, privateCandidates);
-
-          if (openCandidates.length > 0) {
-            this.switchOfflineTab('open');
-            this.updateScanTicker(`[MATCH] Mejor punto abierto: "${openCandidates[0].ssid}" (${openCandidates[0].rssi} dBm). Probando acceso...`);
-          } else if (STATE.autoRecovery.allowPrivateFallback && privateCandidates.length > 0) {
+          if (vaultSaved.length > 0) {
             this.switchOfflineTab('private');
-            this.updateScanTicker(`[CONTINGENCIA] Red privada de mayor señal: "${privateCandidates[0].ssid}" (${privateCandidates[0].rssi} dBm).`);
+            this.updateScanTicker(`[BÓVEDA LOCAL] ${vaultSaved.length} redes autorizadas listas para contingencia. Para escaneo RF en vivo instala la app en Android.`);
+          } else {
+            this.updateScanTicker('[ESTADO] Sandbox Web activo. Pulsa "Ajustes Wi-Fi" del sistema o usa la app nativa Android para escanear radiofrecuencia.');
           }
         }
 
@@ -4562,9 +4560,12 @@
         // 1. Render Redes Abiertas
         if (DOM.offlineDiscoveredNetworksList) {
           if (!openNetworks || openNetworks.length === 0) {
+            const isNative = this.isAndroidNative();
             DOM.offlineDiscoveredNetworksList.innerHTML = `
-              <div style="font-size:0.78rem; color:var(--text-muted); padding:0.6rem; text-align:center;">
-                No se detectaron redes abiertas sin contraseña en este instante. Conmutando a modo de contingencia privada.
+              <div style="font-size:0.78rem; color:var(--text-muted); padding:0.8rem; text-align:center; background:var(--bg-card); border-radius:var(--radius-md); border:1px dashed var(--border-color);">
+                ${isNative 
+                  ? 'No se detectaron redes abiertas sin contraseña en el rango de radiofrecuencia actual.' 
+                  : '<strong>Entorno Web Estándar (W3C Sandbox):</strong> Los navegadores no pueden emitir escaneos directos de radiofrecuencia a antenas vecinas por aislamiento de seguridad. En Android nativo, el escaneo RF es 100% en tiempo real.'}
               </div>
             `;
           } else {
